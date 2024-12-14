@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "web-automation"
+version = "0.1.0"
+description = "Web automation project for data extraction"
+authors = ["Your Name <your.email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "1.26.2"
+pandas = "2.1.4"
+openpyxl = "3.1.2"
+pyautogui = "0.9.54"
+Pillow = "10.1.0"
+pytesseract = "0.3.10"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
