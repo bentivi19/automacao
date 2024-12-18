@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+logs/
+
+# Excel files
+*.xlsx
+*.xls
+
+# Virtual Environment
+.venv/
+venv/
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+temp/

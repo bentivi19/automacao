@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+
+# Virtual Environment
+.venv/
+venv/
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+temp/
+
+# Email templates
+templates/*.bak

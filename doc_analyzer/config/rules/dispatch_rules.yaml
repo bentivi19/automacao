@@ -1,0 +1,90 @@
+# Regras para encaminhamento de documentos
+
+# Regras para envio por email
+email_rules:
+  # Delegacias e departamentos especializados
+  specialized_departments:
+    - name: "DEIC"
+      conditions:
+        - "Lei 12.850"  # organização criminosa
+        - "Leilões sem dados de conta"
+        - "Fraudes contra Instituições Financeiras"
+        - "Fraudes contra Comércio Eletrônico"
+        - "Violação de Dispositivos Eletrônicos"
+        - "Lavagem de Ativos Ilícitos"
+      email: "deic@policiacivil.sp.gov.br"
+
+    - name: "DEINTER"
+      conditions:
+        - "local_fora_capital: true"
+      email: "deinter@policiacivil.sp.gov.br"
+
+    - name: "DECRADI"
+      conditions:
+        - type: "crime"
+          matches: ["RACISMO", "Intolerância"]
+        - "autoria_desconhecida: true"
+      email: "decradi@policiacivil.sp.gov.br"
+
+    - name: "DECAP"
+      conditions:
+        - type: "crime"
+          matches: ["RACISMO", "Intolerância"]
+        - "autoria_conhecida: true"
+      email: "decap@policiacivil.sp.gov.br"
+
+    - name: "DHPP"
+      conditions:
+        - "Pedofilia"
+      email: "dhpp@policiacivil.sp.gov.br"
+
+    - name: "DPPC"
+      conditions:
+        crimes:
+          - "Art. 268 CP"
+          - "Art. 273 CP"
+          - "Art. 278 CP"
+          - "Art. 312 a 339 CP"
+          - "Lei 7.347"  # economia popular
+          - "Lei 8.078"  # Consumidor
+          - "Lei 8.137"
+          - "Lei 8.176"  # ordem econômica
+          - "Lei 8.666"  # Licitação
+          - "Lei 9.605"
+          - "Lei 9.613"
+        subjects:
+          - "Crimes por servidores públicos"
+          - "Lavagem de dinheiro"
+          - "Meio Ambiente"
+          - "Pirâmide financeira"
+      email: "dppc@policiacivil.sp.gov.br"
+
+# Regras para cadastro no Portal de Documentos
+portal_rules:
+  jucesp_rules:
+    - condition: "data_crime <= 2019-07-31"
+      dp: "23º DP"
+      endereco: "Rua Barra Funda, 930"
+    
+    - condition: "data_crime >= 2019-08-01"
+      dp: "7º DP"
+      endereco: "Rua Guaicurus, 2394"
+
+  social_media_rules:
+    - platforms: ["Facebook", "Instagram", "Whatsapp"]
+      dp: "15º DP"
+      endereco: "Rua Leopoldo Couto de Magalhães, 700 – Itaim Bibi"
+      exceptions:
+        - "intolerância"
+        - "pedofilia"
+        - "171 com prejuízo"
+        - "171 com dados bancários"
+    
+    - platforms: ["X", "Twitter"]
+      dp: "15º DP"
+      endereco: "Rua Professor Atílio Innocenti, 642 – Itaim Bibi"
+      exceptions:
+        - "intolerância"
+        - "pedofilia"
+        - "171 com prejuízo"
+        - "171 com dados bancários"
