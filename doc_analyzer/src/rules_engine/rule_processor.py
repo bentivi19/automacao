@@ -1,3 +1,5 @@
+import os
+import re
 import yaml
 from datetime import datetime
 import logging
@@ -16,19 +18,30 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class RuleProcessor:
-    def __init__(self, rules_file: str = 'config/rules/dispatch_rules.yaml'):
-        """Inicializa o processador de regras.
-        
-        Args:
-            rules_file: Caminho para o arquivo YAML com as regras
-        """
-        self.rules_file = Path(rules_file)
-        self.rules = self._load_rules()
-        
+    def __init__(self):
+        """Inicializa o processador de regras."""
+        try:
+            # Obtém o caminho absoluto para o diretório do projeto
+            project_root = Path(__file__).parent.parent.parent
+            rules_path = project_root / 'config' / 'rules' / 'dispatch_rules.yaml'
+            
+            with open(rules_path, 'r', encoding='utf-8') as f:
+                self.rules = yaml.safe_load(f)
+                
+            logger.info("Regras carregadas com sucesso")
+            
+        except Exception as e:
+            logger.error(f"Erro ao carregar regras: {str(e)}")
+            self.rules = {'rules': [], 'settings': {}}
+
     def _load_rules(self) -> dict:
         """Carrega as regras do arquivo YAML."""
         try:
-            with open(self.rules_file, 'r', encoding='utf-8') as f:
+            # Obtém o caminho absoluto para o diretório do projeto
+            project_root = Path(__file__).parent.parent.parent
+            rules_path = project_root / 'config' / 'rules' / 'dispatch_rules.yaml'
+            
+            with open(rules_path, 'r', encoding='utf-8') as f:
                 return yaml.safe_load(f)
         except Exception as e:
             logger.error(f"Erro ao carregar regras: {str(e)}")
@@ -105,3 +118,43 @@ class RuleProcessor:
         # Se não se enquadra em nenhuma regra de departamento especializado,
         # deve usar o portal
         return self.check_specialized_department(crime, local, autoria_conhecida) is None
+
+    def process_rules(self, text: str) -> str:
+        """Processa o texto usando as regras definidas.
+        
+        Args:
+            text: Texto a ser processado
+            
+        Returns:
+            str: Texto processado com os resultados da análise
+        """
+        try:
+            results = {}
+            
+            # Processa cada regra
+            for rule in self.rules.get('rules', []):
+                rule_name = rule.get('name')
+                patterns = rule.get('patterns', [])
+                action = rule.get('action')
+                
+                matches = []
+                for pattern in patterns:
+                    found = re.finditer(pattern, text)
+                    matches.extend([m.group() for m in found])
+                
+                if matches:
+                    results[rule_name] = matches
+            
+            # Formata os resultados como texto
+            output = []
+            output.append("Resultados da análise:")
+            for rule_name, matches in results.items():
+                output.append(f"\n{rule_name}:")
+                for match in matches:
+                    output.append(f"  - {match}")
+            
+            return "\n".join(output) if results else text
+            
+        except Exception as e:
+            logger.error(f"Erro ao processar regras: {str(e)}")
+            return text

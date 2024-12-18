@@ -1,13 +1,20 @@
 import os
+import sys
 import logging
 from pathlib import Path
 from dotenv import load_dotenv
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+
+# Adiciona o diretório pai ao PYTHONPATH
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from src.ai_analyzer.mistral_client import MistralClient
 from src.pdf_processor.pdf_extractor import PDFExtractor
 from src.rules_engine.rule_processor import RuleProcessor
 from src.email_sender.email_manager import EmailManager
 from src.ui.main_window import MainWindow
+
+# Criar diretório de logs se não existir
+os.makedirs('logs', exist_ok=True)
 
 # Configuração de logging
 logging.basicConfig(
@@ -22,8 +29,12 @@ logger = logging.getLogger(__name__)
 
 class DocumentAnalyzer:
     def __init__(self):
+        """Inicializa o analisador de documentos."""
+        # Carrega variáveis de ambiente
         load_dotenv()
-        self.mistral_client = MistralClient(api_key=os.getenv('MISTRAL_API_KEY'))
+        
+        # Inicializa os componentes
+        self.mistral_client = MistralClient()
         self.pdf_extractor = PDFExtractor()
         self.rule_processor = RuleProcessor()
         self.email_manager = EmailManager()
@@ -63,11 +74,37 @@ class DocumentAnalyzer:
             logger.error(f"Erro ao analisar documento: {str(e)}")
             raise
 
+    def process_document(self, file_path: str) -> dict:
+        """Processa um documento PDF e retorna os resultados da análise.
+        
+        Args:
+            file_path: Caminho para o arquivo PDF
+            
+        Returns:
+            dict: Resultados da análise
+        """
+        try:
+            # Extrai texto do PDF
+            text = self.pdf_extractor.extract_text(file_path)
+            
+            # Aplica regras de negócio
+            processed_text = self.rule_processor.process_rules(text)
+            
+            # Analisa com IA
+            analysis = self.mistral_client.analyze_document(processed_text)
+            
+            return {
+                'text': text,
+                'processed': processed_text,
+                'analysis': analysis
+            }
+            
+        except Exception as e:
+            logger.error(f"Erro ao processar documento: {str(e)}")
+            raise
+
 def main():
     try:
-        # Cria diretórios necessários
-        Path("logs").mkdir(exist_ok=True)
-        
         # Inicializa o analisador
         analyzer = DocumentAnalyzer()
         

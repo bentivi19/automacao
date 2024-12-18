@@ -1,157 +1,118 @@
 import customtkinter as ctk
-from tkinter import filedialog
 import logging
+from tkinter import filedialog
 from pathlib import Path
-from typing import Callable, Optional
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('logs/ui.log'),
-        logging.StreamHandler()
-    ]
-)
 
 logger = logging.getLogger(__name__)
 
-class MainWindow:
-    def __init__(self):
-        """Inicializa a janela principal."""
-        self.setup_window()
+class MainWindow(ctk.CTk):
+    def __init__(self, analyzer):
+        super().__init__()
+        self.analyzer = analyzer
+        self.current_text = ""
+        
+        # Configuração da janela
+        self.title("Analisador de Documentos")
+        self.geometry("1000x800")
+        
+        # Criação dos widgets
         self.create_widgets()
         
-    def setup_window(self):
-        """Configura a janela principal."""
-        self.window = ctk.CTk()
-        self.window.title("Analisador de Documentos")
-        self.window.geometry("800x600")
-        
-        # Configura o tema
-        ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("blue")
-
     def create_widgets(self):
-        """Cria os widgets da interface."""
         # Frame principal
-        self.main_frame = ctk.CTkFrame(self.window)
+        self.main_frame = ctk.CTkFrame(self)
         self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
-
-        # Título
-        self.title_label = ctk.CTkLabel(
-            self.main_frame,
-            text="Analisador de Documentos Jurídicos",
-            font=("Roboto", 24)
-        )
-        self.title_label.pack(pady=20)
-
-        # Frame para seleção de arquivo
-        self.file_frame = ctk.CTkFrame(self.main_frame)
-        self.file_frame.pack(fill="x", padx=20, pady=10)
-
-        self.file_label = ctk.CTkLabel(
-            self.file_frame,
-            text="Nenhum arquivo selecionado",
-            font=("Roboto", 12)
-        )
-        self.file_label.pack(side="left", padx=10)
-
+        
+        # Frame superior para seleção de arquivo
+        self.top_frame = ctk.CTkFrame(self.main_frame)
+        self.top_frame.pack(fill="x", padx=5, pady=5)
+        
+        # Botão para selecionar arquivo
         self.select_file_btn = ctk.CTkButton(
-            self.file_frame,
-            text="Selecionar PDF",
+            self.top_frame, 
+            text="Selecionar Arquivo",
             command=self.select_file
         )
-        self.select_file_btn.pack(side="right", padx=10)
-
-        # Frame para output
-        self.output_frame = ctk.CTkFrame(self.main_frame)
-        self.output_frame.pack(fill="both", expand=True, padx=20, pady=10)
-
-        self.output_text = ctk.CTkTextbox(
-            self.output_frame,
-            wrap="word",
-            font=("Roboto", 12)
+        self.select_file_btn.pack(side="left", padx=5)
+        
+        # Campo de texto para mostrar o caminho do arquivo
+        self.file_path_label = ctk.CTkLabel(self.top_frame, text="Nenhum arquivo selecionado")
+        self.file_path_label.pack(side="left", padx=5)
+        
+        # Frame para resultados e perguntas
+        self.content_frame = ctk.CTkFrame(self.main_frame)
+        self.content_frame.pack(fill="both", expand=True, padx=5, pady=5)
+        
+        # Área de texto para mostrar resultados
+        self.result_text = ctk.CTkTextbox(self.content_frame, height=400)
+        self.result_text.pack(fill="both", expand=True, pady=5)
+        
+        # Frame para perguntas
+        self.question_frame = ctk.CTkFrame(self.content_frame)
+        self.question_frame.pack(fill="x", pady=5)
+        
+        # Campo para digitar pergunta
+        self.question_entry = ctk.CTkEntry(
+            self.question_frame,
+            placeholder_text="Digite sua pergunta sobre o documento...",
+            width=400
         )
-        self.output_text.pack(fill="both", expand=True, padx=10, pady=10)
-
-        # Frame para botões de ação
-        self.action_frame = ctk.CTkFrame(self.main_frame)
-        self.action_frame.pack(fill="x", padx=20, pady=10)
-
-        self.analyze_btn = ctk.CTkButton(
-            self.action_frame,
-            text="Analisar Documento",
-            command=self.analyze_document,
+        self.question_entry.pack(side="left", padx=5, fill="x", expand=True)
+        
+        # Botão para enviar pergunta
+        self.ask_button = ctk.CTkButton(
+            self.question_frame,
+            text="Perguntar",
+            command=self.ask_question,
             state="disabled"
         )
-        self.analyze_btn.pack(side="left", padx=10)
-
-        self.save_btn = ctk.CTkButton(
-            self.action_frame,
-            text="Salvar Análise",
-            command=self.save_analysis,
-            state="disabled"
-        )
-        self.save_btn.pack(side="right", padx=10)
-
-        # Barra de progresso
-        self.progress_bar = ctk.CTkProgressBar(self.main_frame)
-        self.progress_bar.pack(fill="x", padx=20, pady=10)
-        self.progress_bar.set(0)
-        self.progress_bar.hide()
-
+        self.ask_button.pack(side="right", padx=5)
+        
     def select_file(self):
-        """Abre diálogo para seleção de arquivo PDF."""
         file_path = filedialog.askopenfilename(
-            title="Selecione o PDF",
-            filetypes=[("PDF files", "*.pdf")]
+            filetypes=[("PDF files", "*.pdf"), ("Todos os arquivos", "*.*")]
         )
         
         if file_path:
-            self.current_file = Path(file_path)
-            self.file_label.configure(text=self.current_file.name)
-            self.analyze_btn.configure(state="normal")
-            logger.info(f"Arquivo selecionado: {file_path}")
-
-    def analyze_document(self):
-        """Inicia a análise do documento."""
-        if not hasattr(self, 'current_file'):
-            return
-
-        self.progress_bar.show()
-        self.progress_bar.start()
-        self.analyze_btn.configure(state="disabled")
-        self.select_file_btn.configure(state="disabled")
-        
-        # Aqui será integrada a análise do documento
-        # Por enquanto apenas simula o processo
-        self.output_text.delete("0.0", "end")
-        self.output_text.insert("0.0", "Analisando documento...\n")
-        
-        # Habilita o botão de salvar após a análise
-        self.save_btn.configure(state="normal")
-        self.progress_bar.stop()
-        self.progress_bar.hide()
-
-    def save_analysis(self):
-        """Salva a análise em um arquivo de texto."""
-        if not self.output_text.get("0.0", "end").strip():
-            return
-
-        save_path = filedialog.asksaveasfilename(
-            title="Salvar Análise",
-            defaultextension=".txt",
-            filetypes=[("Text files", "*.txt")]
-        )
-        
-        if save_path:
             try:
-                with open(save_path, 'w', encoding='utf-8') as f:
-                    f.write(self.output_text.get("0.0", "end"))
-                logger.info(f"Análise salva em: {save_path}")
+                self.file_path_label.configure(text=f"Arquivo: {Path(file_path).name}")
+                
+                # Processa o documento
+                result = self.analyzer.process_document(file_path)
+                self.current_text = result.get('text', '')
+                
+                # Mostra o resultado
+                self.result_text.delete("1.0", "end")
+                self.result_text.insert("1.0", result.get('analysis', ''))
+                
+                # Habilita o botão de perguntas
+                self.ask_button.configure(state="normal")
+                
             except Exception as e:
-                logger.error(f"Erro ao salvar análise: {str(e)}")
-
+                logger.error(f"Erro ao processar arquivo: {str(e)}")
+                self.result_text.delete("1.0", "end")
+                self.result_text.insert("1.0", f"Erro ao processar arquivo: {str(e)}")
+                self.ask_button.configure(state="disabled")
+    
+    def ask_question(self):
+        question = self.question_entry.get()
+        if not question:
+            return
+        
+        try:
+            # Faz a pergunta ao analisador
+            answer = self.analyzer.mistral_client.ask_question(self.current_text, question)
+            
+            # Adiciona a pergunta e resposta ao resultado
+            self.result_text.insert("end", f"\n\nPergunta: {question}\nResposta: {answer}")
+            
+            # Limpa o campo de pergunta
+            self.question_entry.delete(0, "end")
+            
+        except Exception as e:
+            logger.error(f"Erro ao fazer pergunta: {str(e)}")
+            self.result_text.insert("end", f"\n\nErro ao responder pergunta: {str(e)}")
+    
     def run(self):
         """Inicia a execução da interface."""
-        self.window.mainloop()
+        self.mainloop()
