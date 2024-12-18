@@ -60,32 +60,245 @@ email_rules:
       email: "dppc@policiacivil.sp.gov.br"
 
 # Regras para análise de documentos
-rules:
-  - name: identificar_tipo_documento
-    patterns:
-      - "MANDADO DE SEGURANÇA"
-      - "HABEAS CORPUS"
-      - "RECURSO ESPECIAL"
-    action: classify_document_type
+scraping_items:
+  - nome: numero_noticia_fato
+    prioridade: alta
+    padroes:
+      - "Notícia de Fato n[º°]\\s*[\\d.-]+"
+      - "NF\\s*n[º°]\\s*[\\d.-]+"
+      - "Procedimento\\s*n[º°]\\s*[\\d.-]+"
+  
+  - nome: orgao_origem
+    prioridade: alta
+    padroes:
+      - "(Origem|Procedente):\\s*([^\\n]+)"
+      - "(Representante|Denunciante|Noticiante):\\s*([^\\n]+)"
+      - "(Ofício|Denúncia)\\s*(?:n[º°])?\\s*[\\d/]+-[A-Z]+"
+  
+  - nome: sujeito_ativo
+    prioridade: alta
+    padroes:
+      - "(Representado|Investigado|Indiciado|Autor):\\s*([^\\n]+)"
+      - "(Contra|Em face de):\\s*([^\\n]+)"
 
-  - name: extrair_numero_processo
-    patterns:
-      - "[0-9]{7}-[0-9]{2}\\.[0-9]{4}\\.[0-9]\\.[0-9]{2}\\.[0-9]{4}"  # Formato CNJ
-    action: extract_process_number
+  - nome: sujeito_passivo
+    prioridade: alta
+    padroes:
+      - "(Vítima|Ofendido|Representante):\\s*([^\\n]+)"
+      - "(Em favor de):\\s*([^\\n]+)"
 
-  - name: identificar_partes
-    patterns:
-      - "AUTOR:"
-      - "RÉU:"
-      - "REQUERENTE:"
-      - "REQUERIDO:"
-    action: extract_parties
+  - nome: boletim_ocorrencia
+    prioridade: alta
+    padroes:
+      - "(B\\.?O\\.?|Boletim\\s*de\\s*Ocorrência)\\s*(?:n[º°])?\\s*[\\d.-/]+"
+      - "RDO\\s*(?:n[º°])?\\s*[\\d.-/]+"
+    campos_relacionados:
+      - "data_fato"
+      - "local_fato"
+      - "tipo_penal"
 
-  - name: identificar_datas
-    patterns:
-      - "[0-9]{2}/[0-9]{2}/[0-9]{4}"
-      - "[0-9]{1,2} de [A-Za-zÀ-ÿ]+ de [0-9]{4}"
-    action: extract_dates
+  - nome: local_fatos
+    prioridade: alta
+    padroes:
+      - "(?:Local|Endereço)\\s*(?:dos?)?\\s*(?:Fatos?|Ocorrência):\\s*([^\\n]+)"
+      - "(?:Rua|Avenida|R\\.|Av\\.)\\s*[^\\n,]+"
+      - "(?<=ocorrido\\s*(?:na?|em))\\s*(?:Rua|Avenida|R\\.|Av\\.)\\s*[^\\n,]+"
+
+  - nome: data_fatos
+    prioridade: alta
+    padroes:
+      - "(?:Data|Dia)\\s*(?:dos?)?\\s*(?:Fatos?|Ocorrência):\\s*([^\\n]+)"
+      - "(?:ocorrido\\s*em)\\s*(\\d{2}/\\d{2}/\\d{4})"
+      - "(\\d{2}/\\d{2}/\\d{4})"
+
+  - nome: tipo_penal
+    prioridade: alta
+    padroes:
+      - "art(?:igo)?[.\\s]*\\d+[\\s,]*(?:do)?\\s*(?:CP|Código\\s*Penal)"
+      - "(?:Lei|Lei Federal)\\s*(?:n[º°]\\s*)?[\\d.]+/\\d+"
+      - "(?:Crime|Delito|Infração)\\s*(?:de|do|contra)?\\s*([^\\n,.]+)"
+
+  - nome: ultima_manifestacao_promotor
+    prioridade: alta
+    padroes:
+      - "(?s)(?:MANIFESTO-ME|MANIFESTA-SE|DETERMINO|DETERMINA-SE)\\s*(?:por|pela)?\\s*([^\\n.]+)"
+      - "(?s)(?<=Promotor(?:a)?\\s*de\\s*Justiça)[^\\n]*?(?:determina|decide|manifesta-se)[^\\n.]+"
+    campos_relacionados:
+      - "assinatura_digital"
+      - "nome_promotor"
+      - "data_manifestacao"
+
+  - nome: desfecho
+    prioridade: alta
+    padroes:
+      - "(?:determino|determina-se)\\s*(?:a\\s*)?instauração\\s*(?:de)?\\s*(?:inquérito\\s*policial|IP)"
+      - "(?:determino|determina-se)\\s*(?:o\\s*)?arquivamento"
+      - "(?:remetam-se|encaminhem-se)\\s*(?:os\\s*autos)?\\s*(?:à|ao|para)\\s*([^\\n,.]+)"
+
+  - nome: assinatura_digital
+    prioridade: alta
+    padroes:
+      - "(?:Assinado|Documento assinado)\\s*digitalmente"
+      - "Assinatura\\s*[Ee]letrônica"
+
+analise_prioridades:
+  - tipo_penal
+  - local_fatos
+  - ultima_manifestacao_promotor
+  - desfecho
+  - departamento_especializado
+
+regras_analise:
+  departamentos_especializados:
+    - nome: "DECRADI"
+      crimes:
+        - "racismo"
+        - "intolerância"
+        - "discriminação"
+      condicoes:
+        - campo: "autoria"
+          valor: "desconhecida"
+    
+    - nome: "DECAP"
+      crimes:
+        - "racismo"
+        - "intolerância"
+        - "discriminação"
+      condicoes:
+        - campo: "autoria"
+          valor: "conhecida"
+
+    - nome: "DHPP"
+      crimes:
+        - "pedofilia"
+        - "homicídio"
+        - "latrocínio"
+        - "sequestro"
+        - "extorsão mediante sequestro"
+
+    - nome: "DEIC"
+      crimes:
+        - "organização criminosa"
+        - "lavagem de dinheiro"
+        - "estelionato"
+        - "fraude"
+      leis:
+        - "Lei 12.850"
+      divisoes:
+        - nome: "1ª DCCIBER"
+          especialidade: "Fraudes bancárias eletrônicas"
+        - nome: "2ª DCCIBER"
+          especialidade: "Fraudes em comércio eletrônico"
+
+    - nome: "DPPC"
+      artigos_cp:
+        - "268"
+        - "273"
+        - "278"
+        - "312-339"
+      leis:
+        - "Lei 7.347"
+        - "Lei 8.078"
+        - "Lei 8.137"
+        - "Lei 8.176"
+        - "Lei 8.666"
+        - "Lei 9.605"
+        - "Lei 9.613"
+
+regras_conclusao:
+  email:
+    - condicao: "departamento_especializado"
+      acao: "enviar_email"
+    - condicao: "local_fora_capital"
+      acao: "enviar_email_deinter"
+    - condicao: "crime_especializado"
+      acao: "enviar_email_departamento"
+  
+  portal:
+    - condicao: "default"
+      acao: "cadastrar_portal"
+
+# Regras para cadastro no Portal de Documentos
+regras_portal:
+  jucesp:
+    - condicao: "data_fato < 2019-08"
+      dp: "23º DP"
+      endereco: "Rua Barra Funda, 930"
+    - condicao: "data_fato >= 2019-08"
+      dp: "7º DP"
+      endereco: "Rua Guaicurus, 2394"
+  
+  redes_sociais:
+    facebook_instagram_whatsapp:
+      dp: "15º DP"
+      endereco: "Rua Leopoldo Couto de Magalhães, 700 – Itaim Bibi"
+      excecoes:
+        - "intolerância"
+        - "pedofilia"
+        - "171 com prejuízo"
+        - "171 com dados bancários"
+    
+    twitter:
+      dp: "15º DP"
+      endereco: "Rua Professor Atílio Innocenti, 642 – Itaim Bibi"
+      excecoes:
+        - "intolerância"
+        - "pedofilia"
+        - "171 com prejuízo"
+        - "171 com dados bancários"
+
+# Regras para envio de email
+regras_email:
+  delegacias_especializadas:
+    decradi:
+      - tipo: "RACISMO"
+        condicao: "autoria_desconhecida"
+      - tipo: "INTOLERÂNCIA"
+        condicao: "autoria_desconhecida"
+    
+    decap:
+      - tipo: "RACISMO"
+        condicao: "autoria_conhecida"
+      - tipo: "INTOLERÂNCIA"
+        condicao: "autoria_conhecida"
+    
+    dppc:
+      artigos_cp:
+        - "268"
+        - "273"
+        - "278"
+        - "312-339"
+      leis_especiais:
+        - "Lei 7.347"  # economia popular
+        - "Lei 8.078"  # consumidor
+        - "Lei 8.137"
+        - "Lei 8.176"  # ordem econômica
+        - "Lei 8.666"  # licitação
+        - "Lei 9.605"
+        - "Lei 9.613"
+      crimes_especificos:
+        - "crimes_servidor_publico"
+        - "lavagem_dinheiro"
+        - "meio_ambiente"
+        - "piramide_financeira"
+    
+    dhpp:
+      crimes:
+        - "pedofilia"
+    
+    deic:
+      leis:
+        - "Lei 12.850"  # organização criminosa
+      crimes:
+        - "leiloes_sem_dados_conta"
+      divisoes:
+        dcciber1: "Fraudes contra Instituições Financeiras por Meios Eletrônicos"
+        dcciber2: "Fraudes contra Instituições de Comércio Eletrônico"
+        dcciber3: "Violação de Dispositivos Eletrônicos e Redes de Dados"
+        dcciber4: "Lavagem e Ocultação de Ativos Ilícitos por Meios Eletrônicos"
+
+  deinter:
+    condicao: "local_fora_capital"
 
 # Configurações de processamento
 settings:
@@ -93,32 +306,11 @@ settings:
   temperature: 0.1
   model: mistral-medium
 
-# Regras para cadastro no Portal de Documentos
-portal_rules:
-  jucesp_rules:
-    - condition: "data_crime <= 2019-07-31"
-      dp: "23º DP"
-      endereco: "Rua Barra Funda, 930"
-    
-    - condition: "data_crime >= 2019-08-01"
-      dp: "7º DP"
-      endereco: "Rua Guaicurus, 2394"
-
-  social_media_rules:
-    - platforms: ["Facebook", "Instagram", "Whatsapp"]
-      dp: "15º DP"
-      endereco: "Rua Leopoldo Couto de Magalhães, 700 - Itaim Bibi"
-      exceptions:
-        - "intolerância"
-        - "pedofilia"
-        - "171 com prejuízo"
-        - "171 com dados bancários"
-    
-    - platforms: ["X", "Twitter"]
-      dp: "15º DP"
-      endereco: "Rua Professor Atílio Innocenti, 642 - Itaim Bibi"
-      exceptions:
-        - "intolerância"
-        - "pedofilia"
-        - "171 com prejuízo"
-        - "171 com dados bancários"
+# Campos para análise adicional
+campos_analise_adicional:
+  - "promotor_ultima_manifestacao"
+  - "investigado"
+  - "tipificacao_penal"
+  - "crime_indicado"
+  - "orgao_origem"
+  - "local_data_fatos"

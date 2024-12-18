@@ -2,6 +2,8 @@ import customtkinter as ctk
 import logging
 from tkinter import filedialog
 from pathlib import Path
+from queue import Queue
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -10,83 +12,73 @@ class MainWindow(ctk.CTk):
         super().__init__()
         self.analyzer = analyzer
         self.current_text = ""
+        self.queue = Queue()
         
         # Configuração da janela
         self.title("Analisador de Documentos")
-        self.geometry("1000x800")
+        self.geometry("800x600")
         
-        # Criação dos widgets
-        self.create_widgets()
-        
-    def create_widgets(self):
         # Frame principal
         self.main_frame = ctk.CTkFrame(self)
         self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
         
-        # Frame superior para seleção de arquivo
+        # Frame superior
         self.top_frame = ctk.CTkFrame(self.main_frame)
         self.top_frame.pack(fill="x", padx=5, pady=5)
         
         # Botão para selecionar arquivo
-        self.select_file_btn = ctk.CTkButton(
+        self.select_button = ctk.CTkButton(
             self.top_frame, 
             text="Selecionar Arquivo",
             command=self.select_file
         )
-        self.select_file_btn.pack(side="left", padx=5)
+        self.select_button.pack(side="left", padx=5)
         
-        # Campo de texto para mostrar o caminho do arquivo
+        # Label para mostrar o arquivo selecionado
         self.file_path_label = ctk.CTkLabel(self.top_frame, text="Nenhum arquivo selecionado")
         self.file_path_label.pack(side="left", padx=5)
         
-        # Frame para resultados e perguntas
-        self.content_frame = ctk.CTkFrame(self.main_frame)
-        self.content_frame.pack(fill="both", expand=True, padx=5, pady=5)
+        # Frame para o resultado
+        self.result_frame = ctk.CTkFrame(self.main_frame)
+        self.result_frame.pack(fill="both", expand=True, padx=5, pady=5)
         
-        # Área de texto para mostrar resultados
-        self.result_text = ctk.CTkTextbox(self.content_frame, height=400)
-        self.result_text.pack(fill="both", expand=True, pady=5)
+        # Widget de texto para mostrar o resultado
+        self.result_text = ctk.CTkTextbox(self.result_frame)
+        self.result_text.pack(fill="both", expand=True, padx=5, pady=5)
         
-        # Frame para perguntas
-        self.question_frame = ctk.CTkFrame(self.content_frame)
-        self.question_frame.pack(fill="x", pady=5)
+        # Frame inferior para perguntas
+        self.bottom_frame = ctk.CTkFrame(self.main_frame)
+        self.bottom_frame.pack(fill="x", padx=5, pady=5)
         
-        # Campo para digitar pergunta
+        # Entry para perguntas
         self.question_entry = ctk.CTkEntry(
-            self.question_frame,
-            placeholder_text="Digite sua pergunta sobre o documento...",
-            width=400
+            self.bottom_frame,
+            placeholder_text="Digite sua pergunta aqui..."
         )
-        self.question_entry.pack(side="left", padx=5, fill="x", expand=True)
+        self.question_entry.pack(side="left", fill="x", expand=True, padx=5)
         
-        # Botão para enviar pergunta
+        # Botão para fazer pergunta
         self.ask_button = ctk.CTkButton(
-            self.question_frame,
+            self.bottom_frame,
             text="Perguntar",
             command=self.ask_question,
             state="disabled"
         )
         self.ask_button.pack(side="right", padx=5)
-        
+    
     def select_file(self):
+        """Abre diálogo para selecionar arquivo PDF."""
         file_path = filedialog.askopenfilename(
-            filetypes=[("PDF files", "*.pdf"), ("Todos os arquivos", "*.*")]
+            filetypes=[("PDF files", "*.pdf")]
         )
         
         if file_path:
             try:
+                self.current_file = file_path
                 self.file_path_label.configure(text=f"Arquivo: {Path(file_path).name}")
                 
                 # Processa o documento
-                result = self.analyzer.process_document(file_path)
-                self.current_text = result.get('text', '')
-                
-                # Mostra o resultado
-                self.result_text.delete("1.0", "end")
-                self.result_text.insert("1.0", result.get('analysis', ''))
-                
-                # Habilita o botão de perguntas
-                self.ask_button.configure(state="normal")
+                self.process_file(file_path)
                 
             except Exception as e:
                 logger.error(f"Erro ao processar arquivo: {str(e)}")
@@ -94,24 +86,82 @@ class MainWindow(ctk.CTk):
                 self.result_text.insert("1.0", f"Erro ao processar arquivo: {str(e)}")
                 self.ask_button.configure(state="disabled")
     
-    def ask_question(self):
-        question = self.question_entry.get()
-        if not question:
+    def process_file(self, file_path):
+        """Processa o arquivo selecionado."""
+        if not file_path:
             return
         
         try:
-            # Faz a pergunta ao analisador
-            answer = self.analyzer.mistral_client.ask_question(self.current_text, question)
+            # Mostra mensagem de processamento
+            self.result_text.delete("1.0", "end")
+            self.result_text.insert("end", "Processando arquivo...\n")
+            self.result_text.update()
             
-            # Adiciona a pergunta e resposta ao resultado
-            self.result_text.insert("end", f"\n\nPergunta: {question}\nResposta: {answer}")
+            # Processa o arquivo
+            result = self.analyzer.process_document(file_path)
+            
+            # Limpa o widget
+            self.result_text.delete("1.0", "end")
+            
+            # Mostra o resultado
+            if result:
+                self.result_text.insert("end", "Análise do Documento:\n\n")
+                
+                # Informações básicas
+                if result.get("basic_info"):
+                    self.result_text.insert("end", "Informações Básicas:\n")
+                    for key, value in result["basic_info"].items():
+                        self.result_text.insert("end", f"{key}: {value}\n")
+                    self.result_text.insert("end", "\n")
+                
+                # Análise
+                if result.get("analysis"):
+                    self.result_text.insert("end", "Análise:\n")
+                    for key, value in result["analysis"].items():
+                        self.result_text.insert("end", f"{key}: {value}\n")
+                    self.result_text.insert("end", "\n")
+                
+                # Conclusão
+                if result.get("conclusion"):
+                    self.result_text.insert("end", "Conclusão:\n")
+                    for key, value in result["conclusion"].items():
+                        self.result_text.insert("end", f"{key}: {value}\n")
+            
+            # Atualiza a interface
+            self.result_text.update()
+            self.current_text = result.get('text', '')
+            self.ask_button.configure(state="normal")
+            
+        except Exception as e:
+            logger.error(f"Erro ao processar arquivo: {str(e)}")
+            self.result_text.delete("1.0", "end")
+            self.result_text.insert("end", f"Erro ao processar arquivo: {str(e)}")
+            self.ask_button.configure(state="disabled")
+    
+    def ask_question(self):
+        """Processa uma pergunta sobre o documento."""
+        question = self.question_entry.get()
+        if not question:
+            return
+            
+        try:
+            # Mostra mensagem de processamento
+            self.result_text.insert("end", "\nProcessando pergunta...\n")
+            self.result_text.update()
+            
+            # Obtém resposta
+            answer = self.analyzer.answer_question(question, self.current_text)
+            
+            # Mostra a resposta
+            self.result_text.insert("end", f"\nPergunta: {question}\n")
+            self.result_text.insert("end", f"Resposta: {answer}\n")
             
             # Limpa o campo de pergunta
             self.question_entry.delete(0, "end")
             
         except Exception as e:
-            logger.error(f"Erro ao fazer pergunta: {str(e)}")
-            self.result_text.insert("end", f"\n\nErro ao responder pergunta: {str(e)}")
+            logger.error(f"Erro ao processar pergunta: {str(e)}")
+            self.result_text.insert("end", f"\nErro ao processar pergunta: {str(e)}\n")
     
     def run(self):
         """Inicia a execução da interface."""

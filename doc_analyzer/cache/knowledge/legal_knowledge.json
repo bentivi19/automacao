@@ -1,0 +1,68 @@
+{
+  "knowledge": {
+    "legislacao": {
+      "penal": {
+        "codigo": "Decreto-Lei nº 2.848/1940",
+        "atualizacao": "Lei 14.344/2022"
+      },
+      "civil": {
+        "codigo": "Lei nº 10.406/2002",
+        "atualizacao": "Lei 14.382/2022"
+      }
+    },
+    "policia": {
+      "DEIC": {
+        "nome": "Departamento Estadual de Investigações Criminais",
+        "divisoes": [
+          "1ª Delegacia - Investigações Gerais",
+          "2ª Delegacia - Roubo a Bancos",
+          "3ª Delegacia - Investigações sobre Estelionato",
+          "4ª Delegacia - Investigações sobre Crimes Contra o Patrimônio",
+          "5ª Delegacia - Investigações sobre Roubo e Latrocínio",
+          "6ª Delegacia - Investigações sobre Crime Organizado",
+          "7ª Delegacia - Investigações sobre Crimes Contra a Administração"
+        ]
+      },
+      "DHPP": {
+        "nome": "Departamento de Homicídios e Proteção à Pessoa",
+        "divisoes": [
+          "Divisão de Homicídios",
+          "Divisão de Proteção à Pessoa",
+          "Divisão de Crimes contra o Patrimônio"
+        ]
+      },
+      "DECRADI": {
+        "nome": "Delegacia de Crimes Raciais e Delitos de Intolerância",
+        "atribuicoes": [
+          "Crimes de racismo",
+          "Crimes de intolerância religiosa",
+          "Crimes de homofobia",
+          "Crimes de xenofobia"
+        ]
+      },
+      "DECAP": {
+        "nome": "Departamento de Polícia Judiciária da Capital",
+        "atribuicoes": [
+          "Coordenação dos distritos policiais da capital",
+          "Investigação de crimes na capital"
+        ]
+      },
+      "DEINTER": {
+        "nome": "Departamento de Polícia Judiciária do Interior",
+        "regioes": [
+          "DEINTER 1 - São José dos Campos",
+          "DEINTER 2 - Campinas",
+          "DEINTER 3 - Ribeirão Preto",
+          "DEINTER 4 - Bauru",
+          "DEINTER 5 - São José do Rio Preto",
+          "DEINTER 6 - Santos",
+          "DEINTER 7 - Sorocaba",
+          "DEINTER 8 - Presidente Prudente",
+          "DEINTER 9 - Piracicaba",
+          "DEINTER 10 - Araçatuba"
+        ]
+      }
+    }
+  },
+  "last_update": "2024-12-17T23:31:53.169898"
+}
