@@ -1,0 +1,14 @@
+Excelentíssimo(a) Senhor(a) Delegado(a),
+
+Cumprimentando-o(a) cordialmente, encaminho a presente Notícia de Fato nº ${numero_nf}, oriunda da ${promotoria}, para requisitar a instauração de inquérito policial para apuração dos fatos narrados.
+
+Fatos:
+Local: ${local_fatos}
+Data: ${data_fatos}
+Enquadramento: ${enquadramento_legal}
+
+Promotor(a) Requisitante: ${promotor}
+
+Atenciosamente,
+
+Ministério Público do Estado de São Paulo

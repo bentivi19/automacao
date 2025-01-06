@@ -1,0 +1,34 @@
+{
+    "pessoas_expostas": [
+        {
+            "id": "ID1",
+            "name": "Diretor do IMESC",
+            "pattern": "(?i)(Diretor(?:[a])?\\s+(?:do\\s+)?IMESC)",
+            "priority": 3,
+            "action": "NÃO_CADASTRAR",
+            "notify": "email",
+            "description": "Diretor do Instituto de Medicina Social e de Criminologia"
+        }
+    ],
+    "instituicoes_sensiveis": [
+        {
+            "id": "ID2",
+            "name": "IMESC",
+            "pattern": "(?i)IMESC|Instituto\\s+de\\s+Medicina\\s+Social\\s+e\\s+de\\s+Criminologia",
+            "priority": 2,
+            "action": "NÃO_CADASTRAR",
+            "notify": "email",
+            "description": "Instituto de Medicina Social e de Criminologia"
+        }
+    ],
+    "alertas": [
+        {
+            "id": "ALERTA1",
+            "name": "Desobediência",
+            "pattern": "(?i)desobediência|descumprimento\\s+(?:de\\s+)?ordem\\s+judicial",
+            "priority": 3,
+            "notify": "email",
+            "description": "Casos envolvendo desobediência ou descumprimento de ordem judicial"
+        }
+    ]
+}

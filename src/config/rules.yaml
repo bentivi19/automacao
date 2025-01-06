@@ -1,0 +1,49 @@
+pre_analysis:
+- name: apensamento_juntada_anexacao_NF_outro_procedimento
+  description: União da NF a outro inquérito policial ou procedimento determinado
+    pelo Promotor(a)
+  condition: Se Promotor ou Promotora determinar/ juntada ou Promotor ou Promotora
+    determinar/ anexação ou Promotor ou Promotora determinar/ apensamento ou Promotor
+    ou Promotora determinar/ juntar ou Promotor ou Promotora determinar/ anexar ou
+    Promotor ou Promotora determinar/ apensar
+  action: enviar e-mail ao DP do inquérito policial.
+  priority: Crítica
+  type: pre_analysis
+  id: 1
+  created_at: '2024-12-29T18:23:44.696507'
+  updated_at: '2024-12-29T18:23:44.696507'
+- name: desobediencia_diretores_institutos_e_orgaos
+  description: 'Desobediência praticada por diretores das instituições e órgãos públicos
+    estaduais:
+
+    IMESC: Significa Instituto de Medicina Social e de Criminologia de São Paulo.
+    Ele trabalha com perícias médicas, avaliação de danos corporais e outras questões
+    envolvendo medicina legal e criminologia.
+
+
+    IML: É o Instituto Médico Legal. Responsável pelas perícias em casos de morte
+    (exames de necropsia) e outras análises ligadas a investigação de óbitos.
+
+
+    IC: Quer dizer Instituto de Criminalística. Foca em análises técnicas e científicas
+    de vestígios e materiais relacionados a crimes, como exames de balística, de DNA,
+    entre outros.
+
+
+    IIRGD: Instituto de Identificação “Augusto Rodin”'
+  condition: Se diretor do IMESC desobedecer/ desobediência/ bastando ser intimado,
+    notificado ou cientificado por qualquer meio ou forma ou diretor do IML desobedecer/
+    desobediência/ bastando ser intimado, notificado ou cientificado por qualquer
+    meio ou forma ou diretor do IC desobedecer/ desobediência/ bastando ser intimado,
+    notificado ou cientificado por qualquer meio ou forma ou diretor do IIRGD desobedecer/
+    desobediência/ bastando ser intimado, notificado ou cientificado por qualquer
+    meio ou forma
+  action: enviar e-mail ao DPPC
+  priority: Alta
+  type: pre_analysis
+  id: 2
+  created_at: '2024-12-29T18:37:40.618066'
+  updated_at: '2025-01-05T23:46:18.053362'
+final_output: []
+alerts: []
+exceptions: []
