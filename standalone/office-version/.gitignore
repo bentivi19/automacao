@@ -1,0 +1,16 @@
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de IDE
+.vscode/
+.idea/
+
+# Arquivos de build da extensão
+extension/build/
+extension/dist/
+*.zip

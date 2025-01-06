@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extrator de NFs - MPSP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        #log {
+            height: 200px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin-top: 20px;
+            border: 1px solid #dee2e6;
+        }
+        #pageContent {
+            width: 100%;
+            height: 200px;
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4 text-center">Extrator de NFs - MPSP</h1>
+        
+        <div class="alert alert-info">
+            <h5 class="alert-heading">Como usar:</h5>
+            <ol>
+                <li>Certifique-se que o arquivo "atribuicoes_do_dia.xlsx" está salvo no Desktop</li>
+                <li>Abra a página do MPSP com as NFs</li>
+                <li>Selecione todo o conteúdo (Ctrl+A)</li>
+                <li>Copie o conteúdo (Ctrl+C)</li>
+                <li>Cole o conteúdo abaixo (Ctrl+V)</li>
+                <li>Clique em "Processar NFs"</li>
+            </ol>
+        </div>
+
+        <div class="alert alert-warning">
+            <strong>Importante:</strong> 
+            <ul>
+                <li>Não mude de janela durante o processamento</li>
+                <li>Aguarde a mensagem de conclusão antes de fechar esta página</li>
+            </ul>
+        </div>
+
+        <textarea id="pageContent" class="form-control" placeholder="Cole aqui o conteúdo da página do MPSP..."></textarea>
+
+        <div class="text-center mt-3">
+            <button id="processButton" class="btn btn-primary btn-lg">
+                Processar NFs
+            </button>
+        </div>
+
+        <div id="status" class="alert">
+            <!-- Status será inserido aqui -->
+        </div>
+
+        <div id="log">
+            <!-- Log entries serão inseridos aqui -->
+        </div>
+    </div>
+
+    <script>
+        const processButton = document.getElementById('processButton');
+        const statusDiv = document.getElementById('status');
+        const logDiv = document.getElementById('log');
+        const pageContent = document.getElementById('pageContent');
+        const EXCEL_PATH = "C:\\Users\\Julio Soama\\Desktop\\atribuicoes_do_dia.xlsx";
+
+        function addLogEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry text-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function showStatus(message, type) {
+            statusDiv.className = `alert alert-${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+        }
+
+        function extractNFs(text) {
+            const nfs = [];
+            // Regex mais precisa para NFs e Promotorias
+            const nfRegex = /(\d{4}\.\d{7}\/\d{4})/;
+            const promRegex = /(?:(\d+)[ªº]\s*(?:PROMOTORIA\s+(?:DE\s+JUSTIÇA\s+)?CRIMINAL)|(?:DO\s+)?([IVX]+)\s+(?:TRIBUNAL\s+DO\s+)?JÚRI|JUIZADO\s+ESPECIAL\s+CRIMINAL|JECRIM|SANCTVS|GECRADI)/i;
+            
+            // Divide por linhas e filtra apenas as que podem conter NFs ou Promotorias
+            const relevantLines = text.split('\n').filter(line => 
+                nfRegex.test(line) || promRegex.test(line)
+            );
+
+            let currentNF = null;
+
+            for (const line of relevantLines) {
+                const nfMatch = line.match(nfRegex);
+                if (nfMatch) {
+                    if (currentNF && currentNF.promotoria) {
+                        nfs.push(currentNF);
+                    }
+                    currentNF = {
+                        nf: nfMatch[1],
+                        promotoria: null
+                    };
+                    continue;
+                }
+
+                if (!currentNF) continue;
+
+                // Casos especiais primeiro
+                if (/JECRIM|JUIZADO\s+ESPECIAL\s+CRIMINAL/i.test(line)) {
+                    currentNF.promotoria = 'Jecrim';
+                    nfs.push(currentNF);
+                    currentNF = null;
+                    continue;
+                }
+                if (/SANCTVS/i.test(line)) {
+                    currentNF.promotoria = 'Sanc';
+                    nfs.push(currentNF);
+                    currentNF = null;
+                    continue;
+                }
+                if (/GECRADI/i.test(line)) {
+                    currentNF.promotoria = 'Gecr';
+                    nfs.push(currentNF);
+                    currentNF = null;
+                    continue;
+                }
+
+                // Júri
+                const juriMatch = line.match(/(?:DO\s+)?([IVX]+)\s+(?:TRIBUNAL\s+DO\s+)?JÚRI/i);
+                if (juriMatch) {
+                    const romanValues = {'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5};
+                    const num = romanValues[juriMatch[1]] || 1;
+                    currentNF.promotoria = `${num}ºJúri`;
+                    nfs.push(currentNF);
+                    currentNF = null;
+                    continue;
+                }
+
+                // Criminal
+                const crimMatch = line.match(/(\d+)[ªº]\s*PROMOTORIA\s+(?:DE\s+JUSTIÇA\s+)?CRIMINAL/i);
+                if (crimMatch) {
+                    currentNF.promotoria = `${crimMatch[1]}ªCrim`;
+                    nfs.push(currentNF);
+                    currentNF = null;
+                }
+            }
+
+            // Não esquecer do último item se estiver completo
+            if (currentNF && currentNF.promotoria) {
+                nfs.push(currentNF);
+            }
+
+            return nfs;
+        }
+
+        async function processNFs() {
+            const content = pageContent.value.trim();
+            if (!content) {
+                showStatus('Por favor, cole o conteúdo da página primeiro.', 'warning');
+                return;
+            }
+
+            processButton.disabled = true;
+            showStatus('Processando NFs...', 'info');
+            addLogEntry('Iniciando processamento das NFs');
+
+            try {
+                const nfs = extractNFs(content);
+                if (nfs.length === 0) {
+                    showStatus('Nenhuma NF encontrada no texto.', 'warning');
+                    processButton.disabled = false;
+                    return;
+                }
+
+                addLogEntry(`Encontradas ${nfs.length} NFs`);
+
+                // Enviar mensagem para a extensão
+                window.postMessage({
+                    action: 'writeToExcel',
+                    data: nfs
+                }, window.location.origin);
+
+            } catch (error) {
+                showStatus('Erro: ' + error.message, 'danger');
+                addLogEntry('Erro: ' + error.message, 'error');
+                processButton.disabled = false;
+            }
+        }
+
+        // Receber resposta da extensão
+        window.addEventListener('message', function(event) {
+            if (event.origin !== window.location.origin) return;
+
+            if (event.data.action === 'excelError') {
+                showStatus('Erro ao salvar no Excel: ' + event.data.error, 'danger');
+                addLogEntry('Erro ao salvar no Excel: ' + event.data.error, 'error');
+                processButton.disabled = false;
+            }
+        });
+
+        processButton.addEventListener('click', processNFs);
+    </script>
+</body>
+</html>

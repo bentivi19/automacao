@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura de NFs - MPSP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        #log {
+            height: 200px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin-top: 20px;
+        }
+        .log-entry {
+            margin: 5px 0;
+        }
+        .log-info { color: #0d6efd; }
+        .log-warning { color: #ffc107; }
+        .log-error { color: #dc3545; }
+        .log-success { color: #198754; }
+        #pageContent {
+            width: 100%;
+            height: 200px;
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Captura de NFs - MPSP</h1>
+        
+        <div class="alert alert-info">
+            <h5>Instruções:</h5>
+            <ol>
+                <li>Selecione todo o conteúdo da página do MPSP (Ctrl+A)</li>
+                <li>Copie o conteúdo (Ctrl+C)</li>
+                <li>Cole o conteúdo na caixa de texto abaixo (Ctrl+V)</li>
+                <li>Clique em "Processar NFs" para adicionar à planilha</li>
+            </ol>
+        </div>
+
+        <textarea id="pageContent" placeholder="Cole aqui o conteúdo da página..."></textarea>
+
+        <div class="row">
+            <div class="col-md-6">
+                <button id="processButton" class="btn btn-primary">
+                    Processar NFs
+                </button>
+            </div>
+        </div>
+
+        <div id="status" class="alert">
+            <!-- Status será inserido aqui -->
+        </div>
+
+        <div id="log">
+            <!-- Log entries serão inseridos aqui -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const processButton = document.getElementById('processButton');
+        const statusDiv = document.getElementById('status');
+        const logDiv = document.getElementById('log');
+        const pageContent = document.getElementById('pageContent');
+
+        function addLogEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function showStatus(message, type) {
+            statusDiv.className = `alert alert-${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+        }
+
+        function processNFs() {
+            const content = pageContent.value.trim();
+            if (!content) {
+                showStatus('Por favor, cole o conteúdo da página primeiro.', 'warning');
+                return;
+            }
+
+            processButton.disabled = true;
+            showStatus('Processando NFs...', 'info');
+            addLogEntry('Iniciando processamento das NFs');
+
+            fetch('/process-text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ content: content })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.duplicates && data.duplicates.length > 0) {
+                    const message = `Atenção: Foram encontradas as seguintes NFs duplicadas:\n${data.duplicates.join('\n')}`;
+                    showStatus(message, 'warning');
+                    addLogEntry(message, 'warning');
+                }
+                if (data.success) {
+                    showStatus('NFs processadas e adicionadas à planilha com sucesso!', 'success');
+                    addLogEntry('Processamento concluído com sucesso', 'success');
+                    pageContent.value = ''; // Limpa a área de texto
+                } else {
+                    showStatus('Erro durante o processamento: ' + data.error, 'danger');
+                    addLogEntry('Erro: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showStatus('Erro de conexão: ' + error, 'danger');
+                addLogEntry('Erro de conexão: ' + error, 'error');
+            })
+            .finally(() => {
+                processButton.disabled = false;
+            });
+        }
+
+        processButton.addEventListener('click', processNFs);
+    </script>
+</body>
+</html>

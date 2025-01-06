@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automação Web para Excel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Automação Web para Excel</h1>
+        <p>Esta página permite automatizar a cópia de conteúdo para o Excel.</p>
+        
+        <div>
+            <button id="iniciarAutomacao">Iniciar Automação</button>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        document.getElementById('iniciarAutomacao').addEventListener('click', async () => {
+            const status = document.getElementById('status');
+            
+            // Nota: Esta implementação requer permissões especiais ou uma extensão do navegador
+            status.innerHTML = `
+                <p>Para usar esta funcionalidade, você precisará:</p>
+                <ol>
+                    <li>Instalar uma extensão de automação no navegador</li>
+                    <li>Ou usar o script Python fornecido</li>
+                </ol>
+                <p>Recomendamos usar o script Python para maior compatibilidade.</p>
+            `;
+            
+            // Aqui você precisaria implementar a integração com uma extensão de automação
+            // ou usar uma biblioteca como o Selenium WebDriver
+        });
+    </script>
+</body>
+</html>
