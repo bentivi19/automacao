@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "doc-analyzer-2-1"
+version = "0.1.0"
+description = ""
+authors = ["bentivi19 <bentivi19@github.com>"]
+readme = "README.md"
+packages = [{include = "doc_analyzer_2"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

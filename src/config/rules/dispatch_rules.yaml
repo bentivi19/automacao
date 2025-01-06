@@ -1,0 +1,37 @@
+pre_analysis:
+  - id: 1
+    descricao: "Inquérito policial já instaurado para apuração dos mesmos fatos"
+    condition: "manifestação do promotor menciona que já existe inquérito policial para apuração dos mesmos fatos"
+    action: "enviar e-mail ao DP do inquérito policial"
+    keywords:
+      - "já foi instaurado inquérito policial"
+      - "apuração dos mesmos fatos"
+      - "remessa"
+      - "apensamento"
+
+final_output:
+  - id: 1
+    descricao: "Desobediência com artigo 330 do CP"
+    condition: "presença da palavra 'desobediência' e menção ao artigo 330 do CP"
+    action: "Encerrar a tarefa por e-mail ao DPPC"
+    keywords:
+      - "desobediência"
+      - "artigo 330"
+      - "art. 330"
+
+alerts:
+  - id: 1
+    descricao: "Possível desobediência sem menção ao artigo"
+    condition: "presença da palavra 'desobediência' sem menção ao artigo 330 do CP"
+    action: "Alertar para verificar se é caso do artigo 330 do CP"
+    keywords:
+      - "desobediência"
+
+exceptions:
+  - id: 1
+    descricao: "Exceção para casos de desobediência civil"
+    condition: "menção a 'desobediência civil' ou 'protesto pacífico'"
+    action: "Não aplicar regra de desobediência"
+    keywords:
+      - "desobediência civil"
+      - "protesto pacífico"

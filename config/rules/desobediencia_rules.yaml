@@ -1,0 +1,14 @@
+last_updated: '2024-12-30T12:23:16'
+rules:
+  - id: 1
+    name: desobediencia_imesc
+    description: "Regra para identificar casos de desobediência envolvendo o IMESC"
+    condition: "Quando houver menção a desobediência (art. 330 CP) e IMESC no mesmo contexto"
+    action: "Conclusão da tarefa por e-mail ao DPPC"
+    priority: Alta
+    keywords:
+      - desobediência|artigo 330|art. 330|art 330
+      - imesc|instituto de medicina social|instituto médico legal
+    type: pre_analysis
+    created_at: '2024-12-30T12:23:16'
+    updated_at: '2024-12-30T12:23:16'

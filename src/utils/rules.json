@@ -1,0 +1,59 @@
+{
+    "pre_analysis": [
+        {
+            "id": "desobediencia_imesc",
+            "name": "Crime de Desobediência - Diretor IMESC",
+            "description": "Identifica quando o crime de desobediência (Art. 330 CP) é cometido pelo Diretor do IMESC",
+            "priority": "alta",
+            "patterns": [
+                "(?i)art(?:igo)?\\s*330",
+                "(?i)desobediência",
+                "(?i)diretor\\s*(?:do\\s*)?IMESC"
+            ],
+            "action": "NÃO_CADASTRAR",
+            "notify": "DPPC"
+        },
+        {
+            "id": "desobediencia_comum",
+            "name": "Crime de Desobediência - Pessoa Física",
+            "description": "Identifica quando o crime de desobediência (Art. 330 CP) é cometido por pessoa física comum",
+            "priority": "média",
+            "patterns": [
+                "(?i)art(?:igo)?\\s*330",
+                "(?i)desobediência"
+            ],
+            "action": "CADASTRAR_PORTAL",
+            "notify": null
+        }
+    ],
+    "alerts": [
+        {
+            "id": "atraso_pericia",
+            "name": "Atraso em Perícia IMESC",
+            "description": "Identifica atrasos ou recusas em perícias pelo IMESC",
+            "priority": "alta",
+            "patterns": [
+                "(?i)IMESC",
+                "(?i)atraso\\s*(?:na|em|de)\\s*perícia",
+                "(?i)recusa\\s*(?:de|em)\\s*perícia"
+            ],
+            "action": "NOTIFICAR",
+            "notify": "DPPC"
+        }
+    ],
+    "exceptions": [
+        {
+            "id": "pericia_concluida",
+            "name": "Perícia IMESC Concluída",
+            "description": "Identifica quando a perícia do IMESC já foi realizada",
+            "priority": "baixa",
+            "patterns": [
+                "(?i)IMESC",
+                "(?i)perícia\\s*(?:realizada|concluída|finalizada)",
+                "(?i)laudo\\s*(?:emitido|concluído|finalizado)"
+            ],
+            "action": "CADASTRAR_PORTAL",
+            "notify": null
+        }
+    ]
+}

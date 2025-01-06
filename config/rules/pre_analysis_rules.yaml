@@ -1,0 +1,14 @@
+last_updated: '2024-12-30T12:23:16'
+rules:
+  - id: 1
+    name: desobediencia_diretores_de_intitutos_e_orgaos_publicos
+    description: "Se encontrar referências ao artigo 330 do Código Penal que trata do crime de desobediência praticada por qualquer diretor ou representante de órgãos públicos ou institutos do Estado de São Paulo como IMESC, IML, IC ou IIRGD"
+    condition: "crimes que se enquadrem na descrição; desobediência; artigo 330; IMESC; IML; IC; IML"
+    action: "Conclusão da tarefa por e-mail ao DPPC"
+    priority: Alta
+    keywords:
+      - desobediência|artigo 330|art. 330|art 330
+      - imesc|instituto de medicina social|instituto médico legal|iml|ic|iirgd
+    type: pre_analysis
+    created_at: '2024-12-24T10:36:37.295161'
+    updated_at: '2024-12-30T12:23:16'
