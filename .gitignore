@@ -1,3 +1,9 @@
+# Ambiente Virtual
+.venv/
+venv/
+ENV/
+env/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -20,23 +26,33 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
-.env
-.venv
-env/
-venv/
-ENV/
-
 # IDE
-.idea/
 .vscode/
+.idea/
 *.swp
 *.swo
+*~
+.DS_Store
 
-# Project specific
+# Arquivos de Configuração Sensível
+.env
+.env.local
+.env.*.local
+
+# Dados Sensíveis
+*.key
+*.pem
+secrets.json
+
+# Cache Streamlit
+.streamlit/
+*.cache
+
+# Logs
 *.log
-temp_capture.png
-resultados.json
-resultados.xlsx
-debug*.log
-*.xlsx
+logs/
+
+# Temporários
+temp/
+tmp/
+*.tmp

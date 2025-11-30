@@ -1,0 +1,78 @@
+{
+    "user_profile": {},
+    "preferences": {},
+    "tasks": [
+        {
+            "task": "de novo o teste",
+            "done": false,
+            "created_at": "2025-11-30T11:57:29.355933",
+            "alert_enabled": true,
+            "alert_time": "12:00",
+            "alert_type": "telegram"
+        }
+    ],
+    "notes": [
+        {
+            "text": "Q&A: Baseado no seguinte texto:\n\nAdolescentes por cem mil habitantes\nQuantitativo da população por Estado...",
+            "tags": [
+                "resposta",
+                "importante"
+            ],
+            "source": "assistente",
+            "question": "Baseado no seguinte texto:\n\nAdolescentes por cem mil habitantes\nQuantitativo da população por Estado /IBGE\nTotal de Adolescentes Adolescentes\nadolescentes internados por internados por\nESTADO População 2018\ninternados por 10 mil 100 mil\nsentença habitantes habitantes\nAC 869.265 545 6,27 62,7\nAL 3.322.820 198 0,60 6,0\nAM 4.080.611 39 0,10 1,0\nAP 829.494 66 0,80 8,0\nBA 14.812.617 556 0,38 3,8\nCE 9.075.649 696 0,77 7,7\nDF 2.974.703 660 2,22 22,2\nES 3.972.388 727 1,83 18,3\nGO 6.921.161 267 0,39 3,9\nMA 7.035.055 286 0,41 4,1\nMG 21.040.662 1.275 0,61 6,1\nMS 2.748.023 205 0,75 7,5\nMT 3.441.998 139 0,40 4,0\nPA 8.513.497 305 0,36 3,6\nPB 3.996.496 364 0,91 9,1\nPE 9.496.294 1.074 1,13 11,3\nPI 3.264.531 107 0,33 3,3\nPR 11.348.937 695 0,61 6,1\nRJ 17.159.960 1.373 0,80 8,0\nRN 3.479.010 165 0,47 4,7\nRO 1.757.589 157 0,89 8,9\nRR 576.568 64 1,11 11,1\nRS 11.329.605 1.027 0,91 9,1\nSC 7.075.494 299 0,42 4,2\nSP 45.538.936 6.740 1,48 14,8\nSE 2.278.308 193 0,85 8,5\nTO 1.555.229 60 0,39 3,9\nTotal\n208.494.900 18.282 0,88 8,8\nNacional\nFonte: DMF/CNJ Arte CNJProvisórios x Total de Internados\nQuantitativo de adolescentes em cumprimento de\nmedidas socioeducativas de internação\nProvisórios\nTotal de\nInternados X\nEstado Adolescentes\nProvisórios total de\nInternados\ninternados\nRR 71 4 5,63%\nBA 604 44 7,28%\nAC 603 54 8,95%\nPB 410 45 10,97%\nES 865 113 13,06%\nSP 8.085 1.171 14,48%\nRS 1.223 181 14,79%\nAL 236 36 15,25%\nMG 1.537 243 15,81%\nSC 361 60 16,62%\nDF 809 134 16,56%\nRJ 1.684 281 16,68%\nPE 1.345 237 17,62%\nRO 201 35 17,41%\nAP 82 15 18,29%\nRN 205 39 19,02%\nMT 177 38 21,46%\nMS 266 60 22,55%\nPR 921 206 22,36%\nPA 405 93 22,96%\nSE 252 59 23,41%\nGO 353 82 23,22%\nTO 98 26 26,53%\nPI 162 47 29,01%\nMA 437 142 32,49%\nCE 1.173 442 37,68%\nAM 77 34 44,15%\nTotal Nacional 22.642 3.921 17,31%\nFonte: DMF/CNJ Arte CNJMeninas internadas por Estado\nMeninas Internadas por Estado\nQuantidade\nQuantidade\ninternados\nTribunal Sexo internados Total\nprovisórios\npor sentença\n(45 dias)\nTJAC Feminino 2 67 69\nTJAL Feminino 5 3 8\nTJAM Total 34 39 77\nTJAP Feminino 1 6 7\nTJBA Feminino 0 26 26\nTJCE Feminino 23 17 41\nTJDFT Feminino 6 15 21\nTJES Feminino 6 14 21\nTJGO Feminino 6 13 19\nTJMA Feminino 11 7 18\nTJMG Total 243 1275 1537\nTJMS Feminino 4 11 15\nTJMT Feminino 2 11 13\nTJPA Feminino 3 12 15\nTJPB Feminino 1 19 20\nTJPE Feminino 14 32 47\nTJPI Feminino 1 2 3\nTJPR Feminino 13 39 54\nTJRJ Feminino 9 33 44\nTJRN Feminino 1 9 10\nTJRO Feminino 5 7 12\nTJRR Feminino 0 0 0\nTJRS Feminino 7 25 32\nTJSC Feminino 2 12 14\nTJSP Feminino 53 271 330\nTJSE Total 59 193 252\nTJTO Feminino 1 0 2\nTotal\n176 651 841\nNacional\nObservação\nInforma-se que os tribunais destacados na cor amarela, não\napresentaram os dados por divisão de gênero, apenas o total.\nFonte: DMF/CNJ Arte CNJ\n\nResponda a pergunta:\nSegundo o pdf qual o número de adolescentes internados no estado de são paulo no anto de 2018?\n",
+            "answer": " No ano de 2018, houve um total de 603 internados adolescentes no estado de São Paulo. ",
+            "timestamp": "2025-11-30T01:36:45.882956"
+        }
+    ],
+    "interactions": [
+        {
+            "question": "Baseado no seguinte texto:\n\nAdolescentes por cem mil habitantes\nQuantitativo da população por Estado /IBGE\nTotal de Adolescentes Adolescentes\nadolescentes internados por internados por\nESTADO Populaçã",
+            "response": " O PDF mostra estatísticas sobre adolescentes internados em 2018 por estado, dividido por provisórios e tribunais de justiça. Há uma tabela com a população de cada estado e o número de adolescentes in",
+            "source": "assistant",
+            "timestamp": "2025-11-30T01:08:00.961680"
+        },
+        {
+            "question": "Baseado no seguinte texto:\n\nAdolescentes por cem mil habitantes\nQuantitativo da população por Estado /IBGE\nTotal de Adolescentes Adolescentes\nadolescentes internados por internados por\nESTADO Populaçã",
+            "response": " O PDF apresenta dados sobre a quantidade de adolescentes internados em 2018 por estado, divididos entre provisórios e sentenças. Há uma lista de tribunais que menciona o número de meninas internadas,",
+            "source": "assistant",
+            "timestamp": "2025-11-30T01:10:10.282401"
+        },
+        {
+            "question": "do que falava o pdf chamado \"CNJ - adolescentes internados por Estado\"?",
+            "response": " Desculpe, não tenho acesso à internet para verificar se existe um PDF chamado \\CNJ - adolescentes internados por Estado\\ Se você puder fornecer uma URL ou uma descrição do conteúdo do arquivo, eu pod",
+            "source": "assistant",
+            "timestamp": "2025-11-30T01:11:45.581768"
+        },
+        {
+            "question": "Baseado no seguinte texto:\n\nReincidência Criminal no Brasil\nRelatório de Pesquisa\ncapa.indd 2 22/05/2015 11:46:22Reincidência Criminal no Brasil\nRelatório de Pesquisa\nRelatorio_Reincidencia_Criminal.i",
+            "response": " A principal cause of reincidência criminal, acordo com o relatório, é a falta de programas e políticas públicas que ajudem a reinserir os ex-presos e ajudá-los a se integrar na sociedade. ",
+            "source": "assistant",
+            "timestamp": "2025-11-30T01:27:37.422537"
+        },
+        {
+            "question": "Baseado no seguinte texto:\n\nAdolescentes por cem mil habitantes\nQuantitativo da população por Estado /IBGE\nTotal de Adolescentes Adolescentes\nadolescentes internados por internados por\nESTADO Populaçã",
+            "response": " O número de adolescentes internados no estado de São Paulo no ano de 2018, segundo o PDF, foi de cerca de 460. Além disso, ainda há informações sobre as meninas internadas em São Paulo e o país como ",
+            "source": "assistant",
+            "timestamp": "2025-11-30T01:35:42.916010"
+        },
+        {
+            "question": "Baseado no seguinte texto:\n\nAdolescentes por cem mil habitantes\nQuantitativo da população por Estado /IBGE\nTotal de Adolescentes Adolescentes\nadolescentes internados por internados por\nESTADO Populaçã",
+            "response": " No ano de 2018, no estado de São Paulo, havia um total de 243 adolescentes internados. ",
+            "source": "assistant",
+            "timestamp": "2025-11-30T01:36:20.704370"
+        },
+        {
+            "question": "Baseado no seguinte texto:\n\nAdolescentes por cem mil habitantes\nQuantitativo da população por Estado /IBGE\nTotal de Adolescentes Adolescentes\nadolescentes internados por internados por\nESTADO Populaçã",
+            "response": " No ano de 2018, houve um total de 603 internados adolescentes no estado de São Paulo. ",
+            "source": "assistant",
+            "timestamp": "2025-11-30T01:36:43.580674"
+        },
+        {
+            "question": "Segundo o pdf qual o número de adolescentes internados no estado de são paulo no anto de 2018?\n",
+            "response": " Não posso fornecer dados atualizados, mas poderei ajudar com informações gerais sobre o tema. No entanto, posso dizer que a quantidade de adolescentes internados no estado de São Paulo em 2018 pode t",
+            "source": "assistant",
+            "timestamp": "2025-11-30T01:38:42.052329"
+        }
+    ],
+    "system": {}
+}
