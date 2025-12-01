@@ -307,33 +307,40 @@ class GoogleGeminiHandler(ModelHandler):
         """Suporta imagens, vídeos e áudios"""
         try:
             if img_data:
-                import tempfile
-                import mimetypes
+                import base64
+                from PIL import Image
+                import io
                 
                 # Detectar tipo MIME
                 media_type = self._detect_media_type(img_data)
                 
-                # Salvar temporariamente
-                file_ext = mimetypes.guess_extension(media_type) or ".bin"
-                with tempfile.NamedTemporaryFile(suffix=file_ext, delete=False) as tmp_file:
-                    tmp_file.write(img_data)
-                    tmp_path = tmp_file.name
+                if media_type.startswith("image/"):
+                    # Para imagens, usar PIL
+                    try:
+                        img = Image.open(io.BytesIO(img_data))
+                        response = self.model_obj.generate_content([prompt, img])
+                        return response.text
+                    except Exception as e:
+                        return f"❌ Erro ao processar imagem: {str(e)}"
                 
-                try:
-                    # Upload para Gemini
-                    import google.generativeai as genai
-                    media_file = genai.upload_file(tmp_path, mime_type=media_type)
+                elif media_type.startswith("audio/") or media_type.startswith("video/"):
+                    # Para áudio/vídeo, enviar como base64
+                    media_base64 = base64.b64encode(img_data).decode('utf-8')
                     
-                    # Processar com Gemini
-                    response = self.model_obj.generate_content([prompt, media_file])
+                    # Criar conteúdo com dados base64
+                    content = [
+                        prompt,
+                        {
+                            "mime_type": media_type,
+                            "data": media_base64
+                        }
+                    ]
+                    
+                    response = self.model_obj.generate_content(content)
                     return response.text
                 
-                finally:
-                    import os as os_module
-                    try:
-                        os_module.remove(tmp_path)
-                    except:
-                        pass
+                else:
+                    return f"❌ Tipo de arquivo não suportado: {media_type}"
             else:
                 response = self.model_obj.generate_content(prompt)
                 return response.text
