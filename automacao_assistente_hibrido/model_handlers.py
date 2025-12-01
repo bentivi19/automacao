@@ -206,11 +206,15 @@ class OpenAIHandler(ModelHandler):
                             )
                             transcript_text = transcript_response.text
                             
-                            # Adicionar transcrição ao prompt
-                            content = [
-                                {"type": "text", "text": f"{prompt}\n\n📝 Transcrição do áudio:\n{transcript_text}"}
-                            ]
-                            messages[1]["content"] = content
+                            # Criar novo prompt com transcrição
+                            # Mostrar transcrição ao usuário
+                            prompt_com_transcricao = f"{prompt}\n\n📝 **Transcrição do áudio:**\n{transcript_text}"
+                            
+                            # Atualizar a mensagem do usuário com a transcrição
+                            messages[1] = {
+                                "role": "user",
+                                "content": prompt_com_transcricao
+                            }
                 
                 finally:
                     # Limpar arquivo temporário
