@@ -61,7 +61,24 @@ class OllamaLocalHandler(ModelHandler):
             return full_response
         
         except requests.exceptions.ConnectionError:
-            return "❌ Erro: Ollama não está rodando. Inicie com: ollama serve"
+            return (
+                "❌ **Ollama não está rodando**\n\n"
+                "Para usar análise local (LLaVA):\n"
+                "1. Abra um terminal\n"
+                "2. Execute: `ollama serve`\n"
+                "3. Em outro terminal: `ollama pull llava`\n\n"
+                "Enquanto isso, use **OpenAI** no dropdown (requer API key)"
+            )
+        except requests.exceptions.HTTPError as e:
+            if "500" in str(e):
+                return (
+                    "❌ **Erro no Ollama (500 Server Error)**\n\n"
+                    "Tente:\n"
+                    "1. Reiniciar Ollama: `ollama serve`\n"
+                    "2. Verificar se modelo está carregado: `ollama list`\n"
+                    "3. Se não encontrar, baixe: `ollama pull llava`"
+                )
+            return f"❌ Erro HTTP Ollama: {str(e)}"
         except Exception as e:
             return f"❌ Erro ao chamar Ollama: {str(e)}"
 
