@@ -451,7 +451,8 @@ class HybridModelManager:
             for model_visual_key in GoogleGeminiHandler.MODELS_VISUAL:
                 self.handlers["Google"][model_visual_key] = GoogleGeminiHandler(model_visual_key)
             self.available_providers["Google"] = list(GoogleGeminiHandler.MODELS_VISUAL.keys())
-        except ValueError:
+        except (ValueError, Exception) as e:
+            print(f"⚠️ Gemini não carregado: {str(e)}")
             pass
         
         # Anthropic Claude

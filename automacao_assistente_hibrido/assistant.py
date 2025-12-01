@@ -3,6 +3,13 @@ import requests
 import base64
 import sys
 import os
+from pathlib import Path
+
+# Carregar variáveis de ambiente ANTES de tudo
+from dotenv import load_dotenv
+env_path = Path(__file__).parent.parent / ".env"
+if env_path.exists():
+    load_dotenv(env_path)
 
 # Adicionar o diretório do assistente ao path para imports relativos
 current_dir = os.path.dirname(os.path.abspath(__file__))
