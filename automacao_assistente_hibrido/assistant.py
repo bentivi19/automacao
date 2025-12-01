@@ -7,9 +7,16 @@ from pathlib import Path
 
 # Carregar variáveis de ambiente ANTES de tudo
 from dotenv import load_dotenv
-env_path = Path(__file__).parent.parent / ".env"
-if env_path.exists():
-    load_dotenv(env_path)
+# Procurar .env em múltiplos locais
+env_paths = [
+    Path(__file__).parent.parent / ".env",  # Um nível acima (raiz do projeto)
+    Path(__file__).parent / ".env",  # Mesmo diretório
+    Path.cwd() / ".env"  # Diretório atual
+]
+for env_path in env_paths:
+    if env_path.exists():
+        load_dotenv(env_path)
+        break
 
 # Adicionar o diretório do assistente ao path para imports relativos
 current_dir = os.path.dirname(os.path.abspath(__file__))
