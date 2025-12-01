@@ -265,19 +265,33 @@ class OpenAIHandler(ModelHandler):
 # ============================================================================
 
 class GoogleGeminiHandler(ModelHandler):
-    """Handler para Google Gemini"""
+    """Handler para Google Gemini - Suporta Imagens, Vídeos e Áudios"""
     
-    MODELS = {
-        "Gemini 2.0 Flash": "gemini-2.0-flash",
-        "Gemini 1.5 Pro": "gemini-1.5-pro",
-        "Gemini 1.5 Flash": "gemini-1.5-flash"
+    MODELS_VISUAL = {
+        "🎬 Gemini 2.0 Flash (Multimodal)": "gemini-2.0-flash",
+        "🎨 Gemini 1.5 Pro (Visão Avançada)": "gemini-1.5-pro",
+        "⚡ Gemini 1.5 Flash": "gemini-1.5-flash"
     }
     
-    def __init__(self, model_key: str = "Gemini 2.0 Flash", api_key: Optional[str] = None):
+    MODELS_API = {
+        "gemini-2.0-flash": "gemini-2.0-flash",
+        "gemini-1.5-pro": "gemini-1.5-pro",
+        "gemini-1.5-flash": "gemini-1.5-flash"
+    }
+    
+    def __init__(self, model_key: str = "🎬 Gemini 2.0 Flash (Multimodal)", api_key: Optional[str] = None):
         self.model_key = model_key
-        self.model = self.MODELS.get(model_key, "gemini-2.0-flash")
+        
+        # Tentar encontrar o modelo no mapa visual primeiro
+        if model_key in self.MODELS_VISUAL:
+            self.model = self.MODELS_VISUAL[model_key]
+        elif model_key in self.MODELS_API:
+            self.model = self.MODELS_API[model_key]
+        else:
+            self.model = "gemini-2.0-flash"
+        
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
-        self.name = f"Google - {model_key}"
+        self.name = f"Google Gemini - {model_key}"
         
         if not self.api_key:
             raise ValueError(
@@ -290,19 +304,63 @@ class GoogleGeminiHandler(ModelHandler):
         self.model_obj = genai.GenerativeModel(self.model)
     
     def generate(self, prompt: str, img_data: Optional[bytes] = None) -> str:
+        """Suporta imagens, vídeos e áudios"""
         try:
             if img_data:
-                from PIL import Image
-                import io
-                img = Image.open(io.BytesIO(img_data))
-                response = self.model_obj.generate_content([prompt, img])
+                import tempfile
+                import mimetypes
+                
+                # Detectar tipo MIME
+                media_type = self._detect_media_type(img_data)
+                
+                # Salvar temporariamente
+                file_ext = mimetypes.guess_extension(media_type) or ".bin"
+                with tempfile.NamedTemporaryFile(suffix=file_ext, delete=False) as tmp_file:
+                    tmp_file.write(img_data)
+                    tmp_path = tmp_file.name
+                
+                try:
+                    # Upload para Gemini
+                    import google.generativeai as genai
+                    media_file = genai.upload_file(tmp_path, mime_type=media_type)
+                    
+                    # Processar com Gemini
+                    response = self.model_obj.generate_content([prompt, media_file])
+                    return response.text
+                
+                finally:
+                    import os as os_module
+                    try:
+                        os_module.remove(tmp_path)
+                    except:
+                        pass
             else:
                 response = self.model_obj.generate_content(prompt)
-            
-            return response.text
+                return response.text
         
         except Exception as e:
             return f"❌ Erro ao chamar Gemini: {str(e)}"
+    
+    def _detect_media_type(self, data: bytes) -> str:
+        """Detecta o tipo MIME do arquivo"""
+        if not data:
+            return "image/jpeg"
+        
+        # Magic bytes
+        if data[:3] == b'\xff\xd8\xff':
+            return "image/jpeg"
+        elif data[:8] == b'\x89PNG\r\n\x1a\n':
+            return "image/png"
+        elif data[:4] == b'GIF8':
+            return "image/gif"
+        elif data[:4] == b'\x00\x00\x00\x18ftypmp42':
+            return "video/mp4"
+        elif data[:4] == b'RIFF' and data[8:12] == b'WAVE':
+            return "audio/wav"
+        elif data[:2] == b'ID3' or data[:2] == b'\xff\xfb':
+            return "audio/mpeg"
+        else:
+            return "image/jpeg"
 
 
 # ============================================================================
@@ -390,9 +448,9 @@ class HybridModelManager:
         # Google Gemini
         self.handlers["Google"] = {}
         try:
-            for model_key in GoogleGeminiHandler.MODELS:
-                self.handlers["Google"][model_key] = GoogleGeminiHandler(model_key)
-            self.available_providers["Google"] = list(GoogleGeminiHandler.MODELS.keys())
+            for model_visual_key in GoogleGeminiHandler.MODELS_VISUAL:
+                self.handlers["Google"][model_visual_key] = GoogleGeminiHandler(model_visual_key)
+            self.available_providers["Google"] = list(GoogleGeminiHandler.MODELS_VISUAL.keys())
         except ValueError:
             pass
         
