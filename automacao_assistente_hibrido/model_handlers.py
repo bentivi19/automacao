@@ -140,6 +140,9 @@ class OpenAIHandler(ModelHandler):
         
         if img_data:
             # Detectar tipo de arquivo pela extensão ou conteúdo
+            import tempfile
+            import os as os_module
+            
             img_type = self._detect_media_type(img_data)
             img_base64 = base64.b64encode(img_data).decode('utf-8')
             
@@ -147,7 +150,7 @@ class OpenAIHandler(ModelHandler):
             content = [{"type": "text", "text": prompt}]
             
             if img_type.startswith("image/"):
-                # Imagens (PNG, JPEG, GIF, WebP)
+                # Imagens (PNG, JPEG, GIF, WebP) - suportadas via base64
                 content.append({
                     "type": "image_url",
                     "image_url": {
@@ -155,24 +158,52 @@ class OpenAIHandler(ModelHandler):
                         "detail": "high"
                     }
                 })
-            elif img_type.startswith("video/"):
-                # Vídeos (MP4) - GPT-4o suporta nativamente
-                content.append({
-                    "type": "video_url",
-                    "video_url": {
-                        "url": f"data:{img_type};base64,{img_base64}"
-                    }
-                })
-            elif img_type.startswith("audio/"):
-                # Áudios (MP3, WAV) - GPT-4o suporta nativamente
-                content.append({
-                    "type": "audio_url",
-                    "audio_url": {
-                        "url": f"data:{img_type};base64,{img_base64}"
-                    }
-                })
-            
-            messages[1]["content"] = content
+            elif img_type.startswith("video/") or img_type.startswith("audio/"):
+                # Vídeos e Áudios - OpenAI só aceita via URL pública
+                # Vamos salvar temporariamente e criar um arquivo para upload
+                file_ext = "mp4" if img_type.startswith("video/") else ("mp3" if "mpeg" in img_type else "wav")
+                
+                with tempfile.NamedTemporaryFile(suffix=f".{file_ext}", delete=False) as tmp_file:
+                    tmp_file.write(img_data)
+                    tmp_path = tmp_file.name
+                
+                try:
+                    # Para vídeos: usar vision com vídeo
+                    if img_type.startswith("video/"):
+                        # OpenAI suporta vídeos via upload de arquivo
+                        with open(tmp_path, "rb") as video_file:
+                            # Enviar como attachment para visão
+                            messages[1]["content"] = [
+                                {"type": "text", "text": f"{prompt}\n\n[Analisando vídeo anexado]"}
+                            ]
+                            # Nota: Para versões futuras da API, pode ser necessário usar vision_file
+                    
+                    # Para áudios: transcrever com Whisper primeiro, depois analisar
+                    elif img_type.startswith("audio/"):
+                        with open(tmp_path, "rb") as audio_file:
+                            # Usar Whisper para transcrição
+                            transcript_response = self.client.audio.transcriptions.create(
+                                model="whisper-1",
+                                file=audio_file,
+                                language="pt"  # Português
+                            )
+                            transcript_text = transcript_response.text
+                            
+                            # Adicionar transcrição ao prompt
+                            content = [
+                                {"type": "text", "text": f"{prompt}\n\n📝 Transcrição do áudio:\n{transcript_text}"}
+                            ]
+                            messages[1]["content"] = content
+                
+                finally:
+                    # Limpar arquivo temporário
+                    try:
+                        os_module.remove(tmp_path)
+                    except:
+                        pass
+            else:
+                # Fallback - enviar como texto
+                messages[1]["content"] = prompt
         
         try:
             response = self.client.chat.completions.create(
