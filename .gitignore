@@ -48,6 +48,21 @@ secrets.json
 .streamlit/
 *.cache
 
+# Arquivos duplicados/conflituosos na raiz
+/assistant.py
+/memorystore.py
+/model_handlers.py
+/notifications.py
+/alert_scheduler.py
+/memory.py
+/test_debug.py
+/setup_env.py
+
+# Arquivos de teste gerados
+*.pyc
+test_*.py
+debug_*.py
+
 # Logs
 *.log
 logs/
