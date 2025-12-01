@@ -48,6 +48,28 @@ secrets.json
 .streamlit/
 *.cache
 
+# Arquivos Python soltos na raiz (apenas permita na pasta automacao_assistente_hibrido)
+/*.py
+!setup*.py
+!conftest.py
+
+# Arquivos não versionados
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporários
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Lockfiles locais
+poetry.lock
+pip-freeze.txt
+
 # Arquivos duplicados/conflituosos na raiz
 /assistant.py
 /memorystore.py
