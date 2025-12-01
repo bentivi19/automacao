@@ -1,6 +1,19 @@
 ﻿import streamlit as st
 import requests
 import base64
+import sys
+import os
+
+# Adicionar o diretório do assistente ao path para imports relativos
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+
+# Se não estiver no diretório automacao_assistente_hibrido, ajustar path
+if not current_dir.endswith('automacao_assistente_hibrido'):
+    automacao_dir = os.path.join(os.path.dirname(current_dir), 'automacao_assistente_hibrido')
+    if os.path.exists(automacao_dir):
+        sys.path.insert(0, automacao_dir)
+
 import pdfplumber
 from memorystore import MemoryStore
 from notifications import notifier

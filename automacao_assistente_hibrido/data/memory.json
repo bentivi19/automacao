@@ -3,11 +3,11 @@
     "preferences": {},
     "tasks": [
         {
-            "task": "de novo o teste",
+            "task": "meu teste agora",
             "done": false,
-            "created_at": "2025-11-30T11:57:29.355933",
+            "created_at": "2025-11-30T22:03:48.498407",
             "alert_enabled": true,
-            "alert_time": "12:00",
+            "alert_time": "22:05",
             "alert_type": "telegram"
         }
     ],
