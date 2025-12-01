@@ -310,6 +310,8 @@ class GoogleGeminiHandler(ModelHandler):
                 import base64
                 from PIL import Image
                 import io
+                import tempfile
+                import os as os_module
                 
                 # Detectar tipo MIME
                 media_type = self._detect_media_type(img_data)
@@ -324,20 +326,31 @@ class GoogleGeminiHandler(ModelHandler):
                         return f"❌ Erro ao processar imagem: {str(e)}"
                 
                 elif media_type.startswith("audio/") or media_type.startswith("video/"):
-                    # Para áudio/vídeo, enviar como base64
-                    media_base64 = base64.b64encode(img_data).decode('utf-8')
+                    # Para áudio/vídeo, usar Gemini Files API
+                    file_ext = ".mp3" if "mpeg" in media_type else (".wav" if "wav" in media_type else ".mp4")
                     
-                    # Criar conteúdo com dados base64
-                    content = [
-                        prompt,
-                        {
-                            "mime_type": media_type,
-                            "data": media_base64
-                        }
-                    ]
+                    with tempfile.NamedTemporaryFile(suffix=file_ext, delete=False) as tmp_file:
+                        tmp_file.write(img_data)
+                        tmp_path = tmp_file.name
                     
-                    response = self.model_obj.generate_content(content)
-                    return response.text
+                    try:
+                        # Upload do arquivo para Gemini Files API
+                        import google.generativeai as genai
+                        media_file = genai.upload_file(tmp_path, mime_type=media_type)
+                        
+                        # Processar com Gemini usando o arquivo enviado
+                        response = self.model_obj.generate_content([
+                            prompt,
+                            media_file
+                        ])
+                        
+                        return response.text
+                    
+                    finally:
+                        try:
+                            os_module.remove(tmp_path)
+                        except:
+                            pass
                 
                 else:
                     return f"❌ Tipo de arquivo não suportado: {media_type}"
