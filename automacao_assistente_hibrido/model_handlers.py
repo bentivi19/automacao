@@ -141,29 +141,38 @@ class OpenAIHandler(ModelHandler):
         if img_data:
             # Detectar tipo de arquivo pela extensão ou conteúdo
             img_type = self._detect_media_type(img_data)
-            
-            # OpenAI suporta apenas imagens em base64
-            # Vídeos e áudios precisam ser processados diferentemente
-            if img_type.startswith("video/") or img_type.startswith("audio/"):
-                raise ValueError(
-                    f"❌ OpenAI não suporta análise de {img_type.split('/')[0]}s via base64.\n"
-                    f"Modelos suportados: GPT-4o, GPT-4o-mini (apenas IMAGENS)\n"
-                    f"Para {img_type.split('/')[0]}s, use Google Gemini ou Anthropic Claude.\n"
-                    f"Formatos aceitos: PNG, JPEG, GIF, WebP"
-                )
-            
             img_base64 = base64.b64encode(img_data).decode('utf-8')
             
-            messages[1]["content"] = [
-                {"type": "text", "text": prompt},
-                {
+            # Construir conteúdo com suporte a imagens, vídeos e áudios
+            content = [{"type": "text", "text": prompt}]
+            
+            if img_type.startswith("image/"):
+                # Imagens (PNG, JPEG, GIF, WebP)
+                content.append({
                     "type": "image_url",
                     "image_url": {
                         "url": f"data:{img_type};base64,{img_base64}",
-                        "detail": "high"  # Máxima qualidade para análise detalhada
+                        "detail": "high"
                     }
-                }
-            ]
+                })
+            elif img_type.startswith("video/"):
+                # Vídeos (MP4) - GPT-4o suporta nativamente
+                content.append({
+                    "type": "video_url",
+                    "video_url": {
+                        "url": f"data:{img_type};base64,{img_base64}"
+                    }
+                })
+            elif img_type.startswith("audio/"):
+                # Áudios (MP3, WAV) - GPT-4o suporta nativamente
+                content.append({
+                    "type": "audio_url",
+                    "audio_url": {
+                        "url": f"data:{img_type};base64,{img_base64}"
+                    }
+                })
+            
+            messages[1]["content"] = content
         
         try:
             response = self.client.chat.completions.create(
